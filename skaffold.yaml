@@ -1,0 +1,31 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    envTemplate:
+      template: "{{.DOCKER_REGISTRY}}/constantin-ciobotaru/activiti-cloud-process-model-service:{{.VERSION}}"
+  artifacts:
+  - imageName: changeme
+    workspace: .
+    docker: {}
+  local: {}
+deploy:
+  kubectl:
+    manifests:
+profiles:
+- name: dev
+  build:
+    tagPolicy:
+      envTemplate:
+        template: "{{.DOCKER_REGISTRY}}/constantin-ciobotaru/activiti-cloud-process-model-service:{{.DIGEST_HEX}}"
+    artifacts:
+    - docker: {}
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: activiti-cloud-process-model-service
+        chartPath: charts/activiti-cloud-process-model-service
+        setValueTemplates:
+          image.repository: "{{.DOCKER_REGISTRY}}/constantin-ciobotaru/activiti-cloud-process-model-service"
+          image.tag: "{{.TAG}}"
